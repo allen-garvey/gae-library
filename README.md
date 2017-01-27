@@ -10,8 +10,9 @@ An example JSON REST API for a library using Google App Engine with Cloud Datast
 
 ## Getting Started
 
-* 
-* 
+* clone or download this project and `cd` into project directory 
+* Run the command `dev_appserver.py .`
+* Navigate your browser to [http://localhost:8080](http://localhost:8080)
 
 ## License
 
