@@ -4,6 +4,12 @@ import json
 from models.book import Book
 
 class BookController(webapp2.RequestHandler):
+    #deletes all books
+    @classmethod
+    def delete_all_books(cls):
+        books = Book.all()
+        for book in books:
+            ndb.Key(urlsafe=book.key.urlsafe()).delete()
     
     #if book_id is given, returns data on specific book
     #otherwise returns all books
@@ -63,12 +69,9 @@ class BookController(webapp2.RequestHandler):
                 return
         #delete all books
         else:
-            books = Book.all()
-            for book in books:
-                ndb.Key(urlsafe=book.key.urlsafe()).delete()
+            BookController.delete_all_books()
             #HTTP no content
             self.response.set_status(204)
-
 
     #convenience method for writing json response
     def write_json(self, json_string):
