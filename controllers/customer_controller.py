@@ -71,6 +71,8 @@ class CustomerController(BaseController):
         #will cause error if customer not found
         try:
             customer = ndb.Key(urlsafe=customer_id).get()
+            #make sure is customer and not book
+            assert Customer.is_customer(customer)
         except:
             #not found
             self.response.set_status(404)
@@ -93,6 +95,8 @@ class CustomerController(BaseController):
         #will cause error if customer not found
         try:
             customer = ndb.Key(urlsafe=customer_id).get()
+            #make sure is customer and not book
+            assert Customer.is_customer(customer)
         except:
             #not found
             self.response.set_status(404)
