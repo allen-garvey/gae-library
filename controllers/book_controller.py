@@ -73,6 +73,46 @@ class BookController(BaseController):
         #return json values of newly created book
     	self.write_json(book.to_json())
 
+
+    #edit book, doesn't change non-passed in properties
+    #isbn, title, genre and checkIn (to true) are editable
+    #if you want to checkout a book, use customer book handler
+    def patch(self, book_id):
+        #will cause error if customer not found
+        try:
+            book = ndb.Key(urlsafe=book_id).get()
+            #make sure is book and not customer
+            assert Book.is_book(book)
+        except:
+            #not found
+            self.response.set_status(404)
+            return
+
+        #parse json from request body
+        book_data = json.loads(self.request.body)
+
+        #if book is being checked out, send bad request
+        #since this should be done using PUT request to 
+        # /customers/:customer_id/books/:book_id
+        if 'checkedIn' in book_data and book_data['checkedIn'] == False:
+            self.response.set_status(400)
+            return
+
+        #change editable properties if they are set
+        for property_name in ['title', 'isbn', 'genre']:
+            if property_name in book_data:
+                setattr(book, property_name, book_data[property_name])
+        #if book is being checkedIn, make sure to remove it from a customer
+        if 'checkedIn' in book_data and book_data['checkedIn'] == True and book.checkedIn == False:
+            book.checkedIn = True
+            #remove book from customer's checked_out list
+            Customer.remove_book(book.key)
+
+        #save book
+        book.put()
+        #return new book data
+        self.write_json(book.to_json())
+
     #delete a book by id
     #or all books
     def delete(self, book_id=None):
@@ -86,13 +126,7 @@ class BookController(BaseController):
                 #remove the book from customer's checked_out
                 #list, if the book is checked out
                 if book.checkedIn == False:
-                    #get customer that checked out the book (should be single customer)
-                    #but query returns list
-                    customers = Customer.query().filter(Customer.checked_out == book.key).fetch()
-                    for customer in customers:
-                        #remove book from checked_out list and save
-                        customer.checked_out.remove(book.key)
-                        customer.put()
+                    Customer.remove_book(book.key)
                 #delete the book
                 ndb.Key(urlsafe=book_id).delete()
                 #HTTP no content
