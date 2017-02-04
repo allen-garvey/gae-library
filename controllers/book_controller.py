@@ -3,9 +3,14 @@ import webapp2
 import json
 from controllers.base_controller import BaseController
 from models.book import Book
+from models.customer import Customer
 
 class BookController(BaseController):
     #deletes all books
+    #note that this won't inspect the integrity of the customer models
+    #by removing non-existent books from the checked_out lists, but this will hurt performance,
+    #and if you are deleting all the books you probably don't care about
+    #data integrity anyway
     @classmethod
     def delete_all_books(cls):
         books = Book.all()
@@ -78,6 +83,16 @@ class BookController(BaseController):
                 book = ndb.Key(urlsafe=book_id).get()
                 #make sure is book
                 assert Book.is_book(book)
+                #remove the book from customer's checked_out
+                #list, if the book is checked out
+                if book.checkedIn == False:
+                    #get customer that checked out the book (should be single customer)
+                    #but query returns list
+                    customers = Customer.query().filter(Customer.checked_out == book.key).fetch()
+                    for customer in customers:
+                        #remove book from checked_out list and save
+                        customer.checked_out.remove(book.key)
+                        customer.put()
                 #delete the book
                 ndb.Key(urlsafe=book_id).delete()
                 #HTTP no content
