@@ -113,6 +113,51 @@ class BookController(BaseController):
         #return new book data
         self.write_json(book.to_json())
 
+    #same as patch, but sets attributes to defaults if they are
+    #unset in request body
+    #checkIn is always set to default value true, since you cannot
+    #set checkedIn to false using this handler, should be using the 
+    #customer book handler instead
+    def put(self, book_id):
+        #will cause error if customer not found
+        try:
+            book = ndb.Key(urlsafe=book_id).get()
+            #make sure is book and not customer
+            assert Book.is_book(book)
+        except:
+            #not found
+            self.response.set_status(404)
+            return
+
+        #parse json from request body
+        book_data = json.loads(self.request.body)
+
+        #if book is being checked out, send bad request
+        #since this should be done using PUT request to 
+        # /customers/:customer_id/books/:book_id
+        if 'checkedIn' in book_data and book_data['checkedIn'] == False:
+            self.response.set_status(400)
+            return
+
+        #change editable properties if they are set
+        for property_name, default_value in [('title', ''), ('isbn', ''), ('genre', [])]:
+            if property_name in book_data:
+                setattr(book, property_name, book_data[property_name])
+            else:
+                #set to default if not given in requst
+                setattr(book, property_name, default_value)
+        #since we can't set book checkedIn to false using the PUT handler
+        #book will always be set to checkedIn if using PUT
+        if book.checkedIn == False:
+            book.checkedIn = True
+            #remove book from customer's checked_out list
+            Customer.remove_book(book.key)
+
+        #save book
+        book.put()
+        #return new book data
+        self.write_json(book.to_json())
+
     #delete a book by id
     #or all books
     def delete(self, book_id=None):
