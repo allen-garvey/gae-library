@@ -3,6 +3,7 @@
 import webapp2
 from controllers.page_controller import PageController
 from controllers.book_controller import BookController
+from controllers.customer_controller import CustomerController
 
 
 #allows method handlers for patch
@@ -14,5 +15,7 @@ webapp2.WSGIApplication.allowed_methods = new_allowed_methods
 app = webapp2.WSGIApplication([
     ('/', PageController),
     ('/books', BookController),
-    ('/books/(.*)', BookController)
+    ('/books/(.*)', BookController),
+    ('/customers', CustomerController),
+    ('/customers/(.*)', CustomerController)
 ], debug=True)
