@@ -65,6 +65,8 @@ class CustomerController(BaseController):
     	self.write_json(customer.to_json())
 
     #edit customer, doesn't change non-passed in properties
+    #only name and balance are editable
+    #to edit list of checked_out books, use the customer_book routes
     def patch(self, customer_id):
         #will cause error if customer not found
         try:
@@ -81,6 +83,30 @@ class CustomerController(BaseController):
         for property_name in ['name', 'balance']:
             if property_name in customer_data:
                 setattr(customer, property_name, customer_data[property_name])
+        #save customer
+        customer.put()
+        #return new customer data
+        self.write_json(customer.to_json())
+
+    #same as patch, but will replace non sent in values with defaults
+    def put(self, customer_id):
+        #will cause error if customer not found
+        try:
+            customer = ndb.Key(urlsafe=customer_id).get()
+        except:
+            #not found
+            self.response.set_status(404)
+            return
+
+        #parse json from request body
+        customer_data = json.loads(self.request.body)
+
+        #change editable properties if they are set
+        for property_name, default_value in [('name', ''), ('balance', 0)]:
+            if property_name in customer_data:
+                setattr(customer, property_name, customer_data[property_name])
+            else:
+                setattr(customer, property_name, default_value)
         #save customer
         customer.put()
         #return new customer data
