@@ -1,9 +1,10 @@
 from google.appengine.ext import ndb
 import webapp2
 import json
+from controllers.base_controller import BaseController
 from models.book import Book
 
-class BookController(webapp2.RequestHandler):
+class BookController(BaseController):
     #deletes all books
     @classmethod
     def delete_all_books(cls):
@@ -84,8 +85,3 @@ class BookController(webapp2.RequestHandler):
             BookController.delete_all_books()
             #HTTP no content
             self.response.set_status(204)
-
-    #convenience method for writing json response
-    def write_json(self, json_string):
-        self.response.content_type = 'application/json'
-        self.response.write(json_string)

@@ -1,10 +1,11 @@
 import webapp2
+from controllers.base_controller import BaseController
 from controllers.book_controller import BookController
 from controllers.customer_controller import CustomerController
 
-class PageController(webapp2.RequestHandler):
+class PageController(BaseController):
     def get(self):
-        self.response.write("hello")
+        self.response.write("Welcome to the Library REST API!")
 
     #delete all books and all customers
     def delete(self):

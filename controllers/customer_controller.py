@@ -1,10 +1,11 @@
 from google.appengine.ext import ndb
 import webapp2
 import json
+from controllers.base_controller import BaseController
 from models.book import Book
 from models.customer import Customer
 
-class CustomerController(webapp2.RequestHandler):
+class CustomerController(BaseController):
     #deletes all customers
     @classmethod
     def delete_all_customers(cls):
@@ -76,8 +77,3 @@ class CustomerController(webapp2.RequestHandler):
             CustomerController.delete_all_books()
             #HTTP no content
             self.response.set_status(204)
-
-    #convenience method for writing json response
-    def write_json(self, json_string):
-        self.response.content_type = 'application/json'
-        self.response.write(json_string)
