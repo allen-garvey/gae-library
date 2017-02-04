@@ -11,6 +11,12 @@ class Book(ndb.Model):
 	@classmethod
 	def all(cls):
 		return cls.query(ancestor=cls.parent_key()).fetch()
+
+	#takes as an argument a list of book instances
+	#returns a string which contains a json formatted array of book objects
+	@classmethod
+	def all_to_json(cls, book_list):
+		return json.dumps(map(lambda book: book.to_json_dict(), book_list))
 	
 	"""Book"""
 	title = ndb.StringProperty(required=True)
