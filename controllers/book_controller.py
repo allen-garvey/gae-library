@@ -22,6 +22,7 @@ class BookController(webapp2.RequestHandler):
             books = map(lambda book: book.to_json_dict(), Book.all())
             self.write_json(json.dumps(books))
 
+    #create a new book
     def post(self):
     	#parse json from request body
     	book_data = json.loads(self.request.body)
@@ -39,11 +40,35 @@ class BookController(webapp2.RequestHandler):
             if optional_key in book_data:
                 setattr(book, optional_key, book_data[optional_key])
 
+        #save book in datastore
     	book.put()
         #Set HTTP status code to 'created'
     	self.response.set_status(201)
         #return json values of newly created book
     	self.write_json(book.to_json())
+
+    #delete a book by id
+    #or all books
+    def delete(self, book_id=None):
+        #delete single book
+        if book_id:
+            #if book not found will cause an error
+            try:
+                ndb.Key(urlsafe=book_id).delete()
+                #HTTP no content
+                self.response.set_status(204)
+            except:
+                #error on not found
+                self.response.set_status(404)
+                return
+        #delete all books
+        else:
+            books = Book.all()
+            for book in books:
+                ndb.Key(urlsafe=book.key.urlsafe()).delete()
+            #HTTP no content
+            self.response.set_status(204)
+
 
     #convenience method for writing json response
     def write_json(self, json_string):
