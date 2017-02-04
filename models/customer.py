@@ -2,6 +2,11 @@ from google.appengine.ext import ndb
 import json
 
 class Customer(ndb.Model):
+	#determine if an instance is of the customer class
+	@classmethod
+	def is_customer(cls, instance):
+		return instance.__class__.__name__ == cls.__name__
+	
 	#parent key for customers in google datastore
 	@classmethod
 	def parent_key(cls):

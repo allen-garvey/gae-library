@@ -2,6 +2,11 @@ from google.appengine.ext import ndb
 import json
 
 class Book(ndb.Model): 
+	#determine if an instance is of the book class
+	@classmethod
+	def is_book(cls, instance):
+		return instance.__class__.__name__ == cls.__name__
+
 	#parent key for books in google datastore
 	@classmethod
 	def parent_key(cls):
