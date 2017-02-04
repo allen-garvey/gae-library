@@ -20,6 +20,8 @@ class BookController(BaseController):
             #if book not found will cause an error
             try:
                 book = ndb.Key(urlsafe=book_id).get()
+                #make sure is book and not customer
+                assert Book.is_book(book)
                 self.write_json(book.to_json())
             except:
                 #error on not found
@@ -73,6 +75,10 @@ class BookController(BaseController):
         if book_id:
             #if book not found will cause an error
             try:
+                book = ndb.Key(urlsafe=book_id).get()
+                #make sure is book
+                assert Book.is_book(book)
+                #delete the book
                 ndb.Key(urlsafe=book_id).delete()
                 #HTTP no content
                 self.response.set_status(204)

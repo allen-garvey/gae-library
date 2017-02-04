@@ -21,6 +21,8 @@ class CustomerController(BaseController):
             #if customer not found will cause an error
             try:
                 customer = ndb.Key(urlsafe=customer_id).get()
+                #make sure is customer and not book
+                assert Customer.is_customer(customer)
                 self.write_json(customer.to_json())
             except:
                 #error on not found
@@ -65,6 +67,10 @@ class CustomerController(BaseController):
         if customer_id:
             #if customer not found will cause an error
             try:
+                customer = ndb.Key(urlsafe=customer_id).get()
+                #make sure is customer and not book
+                assert Customer.is_customer(customer)
+                #delete customer
                 ndb.Key(urlsafe=customer_id).delete()
                 #HTTP no content
                 self.response.set_status(204)
