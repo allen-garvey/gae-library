@@ -70,6 +70,14 @@ class CustomerController(BaseController):
                 customer = ndb.Key(urlsafe=customer_id).get()
                 #make sure is customer and not book
                 assert Customer.is_customer(customer)
+                #check in all of the customer's books first
+                for book_key in customer.checked_out:
+                    book = book_key.get()
+                    #change to checked in
+                    book.checkedIn = True
+                    #save book changes
+                    book.put()
+
                 #delete customer
                 ndb.Key(urlsafe=customer_id).delete()
                 #HTTP no content
