@@ -76,11 +76,17 @@ class CustomerController(BaseController):
                 assert Customer.is_customer(customer)
                 #check in all of the customer's books first
                 for book_key in customer.checked_out:
-                    book = book_key.get()
-                    #change to checked in
-                    book.checkedIn = True
-                    #save book changes
-                    book.put()
+                    #wrap in try, because might fail if book
+                    #doesn't exist - that's fine, since we are
+                    #deleting this customer anyway
+                    try:
+                        book = book_key.get()
+                        #change to checked in
+                        book.checkedIn = True
+                        #save book changes
+                        book.put()
+                    except:
+                        pass
 
                 #delete customer
                 ndb.Key(urlsafe=customer_id).delete()
