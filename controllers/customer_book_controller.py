@@ -23,3 +23,55 @@ class CustomerBookController(BaseController):
             return
 
         self.write_json(Book.all_to_json(books))
+
+    #checkout a book to a customer
+    def put(self, customer_id, book_id):
+        #if customer or not found will cause an error
+        #or if key of non-customer object or non-book object will also cause error
+        try:
+            customer = ndb.Key(urlsafe=customer_id).get()
+            book = ndb.Key(urlsafe=book_id).get()
+            #check if book is already checked out
+            if book.checkedIn == False:
+                #bad request
+                self.response.set_status(400)
+                return
+            #set book to checked out and save
+            book.checkedIn = False
+            book.put()
+            #add book to customer's checked out books and save
+            customer.checked_out.append(book.key)
+            customer.put()
+        except:
+            #error on customer not found
+            self.response.set_status(404)
+            return
+
+        #HTTP created
+        self.response.set_status(201)
+
+    #checkin a book from a customer
+    def delete(self, customer_id, book_id):
+        #if customer or not found will cause an error
+        #or if key of non-customer object or non-book object will also cause error
+        try:
+            customer = ndb.Key(urlsafe=customer_id).get()
+            book = ndb.Key(urlsafe=book_id).get()
+            #see if customer has checked out this book
+            if book.key not in customer.checked_out:
+                #bad request
+                self.response.set_status(400)
+                return
+            #set book to checked in and save
+            book.checkedIn = True
+            book.put()
+            #remove book from customer's checked out books and save
+            customer.checked_out.remove(book.key)
+            customer.put()
+        except:
+            #error on customer not found
+            self.response.set_status(404)
+            return
+
+        #HTTP ok
+        self.response.set_status(200)

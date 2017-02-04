@@ -17,6 +17,7 @@ app = webapp2.WSGIApplication([
     ('/books', BookController),
     ('/books/(.*)', BookController),
     ('/customers/([^/]+)/books/?', CustomerBookController),
+    ('/customers/([^/]+)/books/([^/]+)/?', CustomerBookController),
     ('/customers', CustomerController),
     ('/customers/(.*)', CustomerController),
 ], debug=True)
