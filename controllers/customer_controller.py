@@ -7,6 +7,10 @@ from models.customer import Customer
 
 class CustomerController(BaseController):
     #deletes all customers
+    #note that this won't inspect the integrity of the books models
+    #by checking in checked out books, but this will hurt performance,
+    #and if you are deleting all the customers you probably don't care about
+    #data integrity anyway
     @classmethod
     def delete_all_customers(cls):
         customers = Customer.all()
