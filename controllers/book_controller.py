@@ -25,8 +25,20 @@ class BookController(webapp2.RequestHandler):
                 self.response.set_status(404)
         #return list of all books
         else:
-            books = map(lambda book: book.to_json_dict(), Book.all())
-            self.write_json(json.dumps(books))
+            #if request parameter not sent, will be empty string
+            #convert to lowercase so we get case insensitive string comparison
+            #http://stackoverflow.com/questions/319426/how-do-i-do-a-case-insensitive-string-comparison-in-python
+            checked_out_parameter = self.request.get('checkedIn').lower()
+            #just show books that are not checked in
+            if checked_out_parameter == 'false':
+                books = Book.query(Book.checkedIn == False).fetch()
+            #just show books that are checkedIn
+            elif checked_out_parameter == 'true':
+                books = Book.query(Book.checkedIn == True).fetch()
+            #show all books
+            else:
+                books = Book.all()
+            self.write_json(Book.all_to_json(books))
 
     #create a new book
     def post(self):
