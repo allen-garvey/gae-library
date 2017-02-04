@@ -26,3 +26,4 @@ Thumbs.db
 *.zip
 test_script.py
 test_books.py
+requirements.txt
