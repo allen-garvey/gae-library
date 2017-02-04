@@ -64,6 +64,28 @@ class CustomerController(BaseController):
         #return json values of newly created customer
     	self.write_json(customer.to_json())
 
+    #edit customer, doesn't change non-passed in properties
+    def patch(self, customer_id):
+        #will cause error if customer not found
+        try:
+            customer = ndb.Key(urlsafe=customer_id).get()
+        except:
+            #not found
+            self.response.set_status(404)
+            return
+
+        #parse json from request body
+        customer_data = json.loads(self.request.body)
+
+        #change editable properties if they are set
+        for property_name in ['name', 'balance']:
+            if property_name in customer_data:
+                setattr(customer, property_name, customer_data[property_name])
+        #save customer
+        customer.put()
+        #return new customer data
+        self.write_json(customer.to_json())
+
     #delete a customer by id
     #or all customers
     def delete(self, customer_id=None):
